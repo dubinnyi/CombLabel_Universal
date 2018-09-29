@@ -219,6 +219,7 @@ class ELB:
 class Constants:
 
     #
+    #
     # Letters will be used for NMR codes >=10
     CodeLetters =  ["a", "b", "c", "d", "e", "f"]
     CodeLettersDict = {}
