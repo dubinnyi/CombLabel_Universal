@@ -178,22 +178,27 @@ class PatternsCodes:
         self.ncs = ncs
         self.codes = []
         self.codes_list = []
+        self.map_code_to_number = {}
         pattern_class = PatternClass()
         self.simple_list = [pattern_class.simplify_pattern(pattern) for pattern in patterns]
         self._create_codes_table()
 
+    # C-style
     def _create_codes_table(self):
-        for pattern1 in self.patterns:
-            codes_row = []
-            for pattern2 in self.patterns:
+        n = len(self.patterns)
+        self.codes = [[None in range(n)] in range(n)]
+        code_number = 0
+        for i in range(n):
+            pattern1 = self.patterns[i]
+            for j in range(n):
+                pattern2 = self.patterns[j]
                 symbol_code = self.ncs.calc_code(pattern1, pattern2)
-                if symbol_code in self.codes_list:
-                    code_number = self.codes_list.index(symbol_code)
+                if symbol_code in self.map_code_to_number:
+                    code_number = self.map_code_to_number[symbol_code]
                 else:
-                    code_number = len(self.codes_list)
-                    self.codes_list.append(symbol_code)
-                codes_row.append(code_number)
-            self.codes.append(codes_row)
+                    code_number = code_number + 1
+                    self.map_code_to_number[symbol_code] = code_number
+                self.codes[i][j] = code_number
 
     def get_pattern_number(self, pattern):
         return self.patterns.index(pattern)
