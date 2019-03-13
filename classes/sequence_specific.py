@@ -174,43 +174,69 @@ class Residue2Label:
 class PatternsCodes:
 
     def __init__(self, patterns, ncs):
-        self.patterns = patterns
-        self.ncs = ncs
-        self.codes = []
-        self.codes_list = []
-        self.map_code_to_number = {}
         pattern_class = PatternClass()
-        self.simple_list = [pattern_class.simplify_pattern(pattern) for pattern in patterns]
+        self.ncs = ncs
+        self.pattern_strings = patterns
+        self.code_strings = []
+        self.simplified_strings = [pattern_class.simplify_pattern(pattern) for pattern in patterns]
+        self.simplified_strings_unique = []
+        self.map_code_to_int = {}
+        self.map_pattern_to_int = {}
+        self.map_simplified_to_int = {}
+        self.codeint_2D = []
         self._create_codes_table()
+
+        patternint=0
+        for p in self.pattern_strings:
+            self.map_pattern_to_int[p] = patternint
+            patternint = patternint + 1
+
+        simpleint=0
+        for simpl in self.simplified_strings:
+            if simpl not in self.map_simplified_to_int:
+                self.map_simplified_to_int[simpl] = simpleint
+                self.simplified_strings_unique.append(simpl)
+                simpleint = simpleint + 1
+        self.nsimple = simpleint
 
     # C-style
     def _create_codes_table(self):
-        n = len(self.patterns)
-        self.codes = [[None in range(n)] in range(n)]
-        code_number = 0
+        n = len(self.pattern_strings)
+        self.codeint_2D = [[None in range(n)] in range(n)]
+        codeint = 0
         for i in range(n):
-            pattern1 = self.patterns[i]
+            pattern1 = self.pattern_strings[i]
             for j in range(n):
-                pattern2 = self.patterns[j]
-                symbol_code = self.ncs.calc_code(pattern1, pattern2)
-                if symbol_code in self.map_code_to_number:
-                    code_number = self.map_code_to_number[symbol_code]
+                pattern2 = self.pattern_strings[j]
+                code_string = self.ncs.calc_code(pattern1, pattern2)
+                if code_string in self.map_code_to_int:
+                    codeint = self.map_code_to_int[code_string]
                 else:
-                    code_number = code_number + 1
-                    self.map_code_to_number[symbol_code] = code_number
-                self.codes[i][j] = code_number
+                    codeint = codeint + 1
+                    self.map_code_to_int[code_string] = codeint
+                    self.code_strings.append(code_string)
+                self.codeint_2D[i][j] = codeint
 
-    def get_pattern_number(self, pattern):
-        return self.patterns.index(pattern)
+    def calc_code_fast(self, pattern_int1, pattern_int2):
+        return self.codeint_2D[pattern_int1][pattern_int2]
 
-    def get_pattern_by_code(self, pattern_code):
-        return self.patterns[pattern_code]
+    def convert_pattern_to_int(self, pattern_string):
+        return self.map_pattern_to_int[pattern_string]
 
-    def get_simple_form_by_code(self, pattern_code):
-        return  self.simple_list[pattern_code]
+    def convert_int_to_pattern(self, pattern_int):
+        return self.pattern_strings[pattern_int]
 
-    def get_symbol_code_by_number(self, code_number):
-        return self.codes_list[code_number]
+    def convert_int_to_simple(self, simple_int):
+        return  self.simplified_strings_unique[simple_int]
+
+    def convert_simple_to_int(self, simple_string):
+        return  self.map_simplified_to_int[simple_string]
+
+    def convert_int_to_code(self, code_int):
+        return self.code_strings[code_int]
+
+    def convert_code_to_int(self, code_string):
+        return self.map_code_to_int[code_string]
 
 
 class Solution:
